@@ -1,18 +1,18 @@
 ﻿grammar MyLanguageGrammar;
 
-// lexer
+// Lexer rules
 MODULE: 'MODULE';
 IMPORT: 'IMPORT';
 VARIABLES: 'VARIABLES';
 
 INT: 'INT';
-INT_V: [0-9]+;
+INT_L: [0-9]+;
 
 REAL: 'REAL';
-REAL_V: [0-9]+ '.' [0-9]+;
+REAL_L: [0-9]+ '.' [0-9]+;
 
 STR: 'STR';
-STR_V: [a-zA-Z_][a-zA-Z_0-9]*;
+STR_L: '"' ( ~["\\] | '\\' . )* '"';
 
 ARRAY: 'ARRAY';
 OF: 'OF';
@@ -39,27 +39,31 @@ EQ : ':=' ;
 COLON : ':' ;
 PERIOD : '.' ; 
 
-IDENT_V: [a-zA-Z_] [a-zA-Z_0-9]* ;
+IDENT_L: [a-zA-Z_] [a-zA-Z_0-9]*;
 
-WS: [ \t\r\n]+ -> skip; // ignore whitespace and tabs 
+WS: [ \t\r\n]+ -> skip;
 
-// parser
-module: MODULE IDENT_V SEMI moduleStatements? PERIOD ;
+// Parser rules
+start: module EOF;
 
-moduleStatements: (IMPORT IDENT_V SEMI)* variablesDeclarationBlock? procedure* procedureBody IDENT_V ;
+module: MODULE qualifiedIdent SEMI moduleStatements? PERIOD ;
+
+qualifiedIdent: IDENT_L ('.' IDENT_L)*;
+
+moduleStatements: (IMPORT qualifiedIdent SEMI)* variablesDeclarationBlock? procedure* procedureBody IDENT_L ;
 
 variablesDeclarationBlock: VARIABLES (variablesDeclaration SEMI)+ ;
 
-variablesDeclaration: IDENT_V (COMMA IDENT_V)* COLON type ;
+variablesDeclaration: IDENT_L (COMMA IDENT_L)* COLON type ;
 
 type: INT 
     | REAL 
     | STR 
-    | ARRAY INT_V OF type;
+    | ARRAY INT_L OF type;
 
 procedure: procedureDeclaration variablesDeclarationBlock? procedureBody SEMI ;
 
-procedureDeclaration: PROCEDURE IDENT_V (LPAREN procedureParameters RPAREN)? (COLON type)? ;
+procedureDeclaration: PROCEDURE IDENT_L (LPAREN procedureParameters RPAREN)? (COLON type)? ;
 
 procedureParameters: variablesDeclaration (COMMA variablesDeclaration)* ;
 
@@ -72,7 +76,7 @@ statement: (procedureCall
     | returnStatement
     ) SEMI ;
 
-procedureCall: IDENT_V LPAREN (expression (COMMA expression)*)? RPAREN ;
+procedureCall: IDENT_L LPAREN (expression (COMMA expression)*)? RPAREN ;
 
 expression: simpleExpression (relation simpleExpression)? ;
 
@@ -100,14 +104,14 @@ mulOperator
 factor: '~' factor 
     | LPAREN expression RPAREN
     | procedureCall 
-    | IDENT_V 
+    | IDENT_L 
     | literal;
 
-literal: REAL_V 
-    | INT_V 
-    | STR_V ;
+literal: REAL_L 
+    | INT_L 
+    | STR_L ;
 
-assignment: IDENT_V EQ expression ;
+assignment: IDENT_L EQ expression ;
 
 ifStatement: IF expression THEN statement* (elseIfStatement)? (elseStatement)? END ;
 elseIfStatement: ELSIF expression THEN statement* ;
