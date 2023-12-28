@@ -55,7 +55,7 @@ variablesDeclaration: IDENT_V (COMMA IDENT_V)* COLON type ;
 type: INT 
     | REAL 
     | STR 
-    | ARRAY OF type;
+    | ARRAY INT_V OF type;
 
 procedure: procedureDeclaration variablesDeclarationBlock? procedureBody SEMI ;
 
@@ -65,8 +65,7 @@ procedureParameters: variablesDeclaration (COMMA variablesDeclaration)* ;
 
 procedureBody: START statement* END ;
 
-statement: (
-    procedureCall 
+statement: (procedureCall 
     | assignment 
     | ifStatement 
     | whileStatement 
