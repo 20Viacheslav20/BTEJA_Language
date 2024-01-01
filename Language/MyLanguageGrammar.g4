@@ -1,6 +1,7 @@
 ﻿grammar MyLanguageGrammar;
 
 // Lexer rules
+
 MODULE: 'MODULE';
 IMPORT: 'IMPORT';
 VARIABLES: 'VARIABLES';
@@ -31,19 +32,20 @@ START: 'START';
 END: 'END';
 RETURN: 'RETURN';
 
-SEMI : ';' ;
-COMMA : ',' ;
-LPAREN : '(' ;
-RPAREN : ')' ;
-EQ : ':=' ;
-COLON : ':' ;
-PERIOD : '.' ; 
+SEMI: ';' ;
+COMMA: ',' ;
+LPAREN: '(' ;
+RPAREN: ')' ;
+EQ: ':=' ;
+COLON: ':' ;
+PERIOD: '.' ; 
 
 IDENT_L: [a-zA-Z_] [a-zA-Z_0-9]*;
 
 WS: [ \t\r\n]+ -> skip;
 
 // Parser rules
+
 start: module EOF;
 
 module: MODULE qualifiedIdent SEMI moduleStatements? PERIOD ;
@@ -82,13 +84,10 @@ expression: simpleExpression (relation simpleExpression)? ;
 
 simpleExpression: addOperator? term (addOperator term)* ;
 
-addOperator
-    : '+'
+addOperator: '+'
     | '-';
 
-relation
-    : '='
-    | '#'
+relation: '='
     | '<'
     | '<='
     | '>'
@@ -96,8 +95,7 @@ relation
 
 term : factor (mulOperator factor)*;
 
-mulOperator
-    : '*'
+mulOperator: '*'
     | '/'
     | '&';
 

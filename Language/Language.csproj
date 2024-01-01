@@ -11,10 +11,6 @@
         <PackageReference Include="Antlr4.Runtime.Standard" Version="4.13.1" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Programs\" />
-    </ItemGroup>
-
     <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
         <Exec Command="java -jar JavaAntlr/antlr-4.13.1-complete.jar -visitor -no-listener -Dlanguage=CSharp MyLanguageGrammar.g4" />
     </Target>
