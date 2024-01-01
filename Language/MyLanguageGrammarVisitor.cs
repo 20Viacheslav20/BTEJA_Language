@@ -44,12 +44,6 @@ public interface IMyLanguageGrammarVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitModule([NotNull] MyLanguageGrammarParser.ModuleContext context);
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="MyLanguageGrammarParser.qualifiedIdent"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	/// <return>The visitor result.</return>
-	Result VisitQualifiedIdent([NotNull] MyLanguageGrammarParser.QualifiedIdentContext context);
-	/// <summary>
 	/// Visit a parse tree produced by <see cref="MyLanguageGrammarParser.moduleStatements"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -139,12 +133,6 @@ public interface IMyLanguageGrammarVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitTerm([NotNull] MyLanguageGrammarParser.TermContext context);
-	/// <summary>
-	/// Visit a parse tree produced by <see cref="MyLanguageGrammarParser.mulOperator"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	/// <return>The visitor result.</return>
-	Result VisitMulOperator([NotNull] MyLanguageGrammarParser.MulOperatorContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="MyLanguageGrammarParser.factor"/>.
 	/// </summary>

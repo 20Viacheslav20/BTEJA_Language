@@ -13,7 +13,7 @@ REAL: 'REAL';
 REAL_L: [0-9]+ '.' [0-9]+;
 
 STR: 'STR';
-STR_L: '"' ( ~["\\] | '\\' . )* '"';
+STR_L: '"' .*? '"' ;
 
 ARRAY: 'ARRAY';
 OF: 'OF';
@@ -48,11 +48,9 @@ WS: [ \t\r\n]+ -> skip;
 
 start: module EOF;
 
-module: MODULE qualifiedIdent SEMI moduleStatements? PERIOD ;
+module: MODULE IDENT_L SEMI moduleStatements? PERIOD ;
 
-qualifiedIdent: IDENT_L ('.' IDENT_L)*;
-
-moduleStatements: (IMPORT qualifiedIdent SEMI)* variablesDeclarationBlock? procedure* procedureBody IDENT_L ;
+moduleStatements: (IMPORT IDENT_L SEMI)* variablesDeclarationBlock? procedure* procedureBody IDENT_L ;
 
 variablesDeclarationBlock: VARIABLES (variablesDeclaration SEMI)+ ;
 
@@ -93,11 +91,7 @@ relation: '='
     | '>'
     | '>=';
 
-term : factor (mulOperator factor)*;
-
-mulOperator: '*'
-    | '/'
-    | '&';
+term: factor (('*' | '/' | '&') factor)*;
 
 factor: '~' factor 
     | LPAREN expression RPAREN
