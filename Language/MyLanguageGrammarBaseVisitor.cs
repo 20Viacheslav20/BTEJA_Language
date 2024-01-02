@@ -175,6 +175,16 @@ public partial class MyLanguageGrammarBaseVisitor<Result> : AbstractParseTreeVis
 	/// <return>The visitor result.</return>
 	public virtual Result VisitSimpleExpression([NotNull] MyLanguageGrammarParser.SimpleExpressionContext context) { return VisitChildren(context); }
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="MyLanguageGrammarParser.plusMinus"/>.
+	/// <para>
+	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
+	/// on <paramref name="context"/>.
+	/// </para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	public virtual Result VisitPlusMinus([NotNull] MyLanguageGrammarParser.PlusMinusContext context) { return VisitChildren(context); }
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="MyLanguageGrammarParser.addOperator"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
@@ -184,6 +194,16 @@ public partial class MyLanguageGrammarBaseVisitor<Result> : AbstractParseTreeVis
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	public virtual Result VisitAddOperator([NotNull] MyLanguageGrammarParser.AddOperatorContext context) { return VisitChildren(context); }
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="MyLanguageGrammarParser.mulOperator"/>.
+	/// <para>
+	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
+	/// on <paramref name="context"/>.
+	/// </para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	public virtual Result VisitMulOperator([NotNull] MyLanguageGrammarParser.MulOperatorContext context) { return VisitChildren(context); }
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="MyLanguageGrammarParser.relation"/>.
 	/// <para>

@@ -116,11 +116,23 @@ public interface IMyLanguageGrammarVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitSimpleExpression([NotNull] MyLanguageGrammarParser.SimpleExpressionContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="MyLanguageGrammarParser.plusMinus"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitPlusMinus([NotNull] MyLanguageGrammarParser.PlusMinusContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="MyLanguageGrammarParser.addOperator"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitAddOperator([NotNull] MyLanguageGrammarParser.AddOperatorContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="MyLanguageGrammarParser.mulOperator"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitMulOperator([NotNull] MyLanguageGrammarParser.MulOperatorContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="MyLanguageGrammarParser.relation"/>.
 	/// </summary>

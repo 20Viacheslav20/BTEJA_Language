@@ -1,17 +1,18 @@
 ﻿
 using Antlr4.Runtime.Tree;
 using Antlr4.Runtime;
-using Language;
+using Language.AstAnalysis;
 
 class Program
 {
     public static void Main(string[] args)
     {
-        string input = 
+        string input =
 @"MODULE mod;
-    VARIABLES somevalue : INT;
+VARIABLES 
+    somevalue : INT;
 START
-    somevalue := 45;
+    somevalue :=  45 + 8 < 9 + 5;
 END mod.";
 
         ICharStream stream = CharStreams.fromString(input);
@@ -23,11 +24,7 @@ END mod.";
         MyLanguageGrammarParser parser = new MyLanguageGrammarParser(tokens);
 
         IParseTree tree = parser.start();
-        Visitor visitor = new Visitor();
-        var a = visitor.Visit(tree);
-
-        Console.WriteLine(a);
-
-        var ab = 5;
+        AstVisitor visitor = new AstVisitor();
+        visitor.Visit(tree);
     }
 }

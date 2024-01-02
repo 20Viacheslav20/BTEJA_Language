@@ -80,10 +80,18 @@ procedureCall: IDENT_L LPAREN (expression (COMMA expression)*)? RPAREN ;
 
 expression: simpleExpression (relation simpleExpression)? ;
 
-simpleExpression: addOperator? term (addOperator term)* ;
+simpleExpression: plusMinus? term (addOperator term)* ;
+
+plusMinus: '+' 
+    | '-';
 
 addOperator: '+'
-    | '-';
+    | '-'
+    | 'OR';
+
+mulOperator: '*' 
+    | '/'
+    | '&';
 
 relation: '='
     | '<'
@@ -91,7 +99,7 @@ relation: '='
     | '>'
     | '>=';
 
-term: factor (('*' | '/' | '&') factor)*;
+term: factor (mulOperator factor)*;
 
 factor: '~' factor 
     | LPAREN expression RPAREN

@@ -45,11 +45,15 @@ END Discriminant.
 
 ---------------------------------------------------------------------
 MODULE mod;
-VARIABLES somevalue  : INT;
+VARIABLES 
+    somevalue, somevalue3 : INT;
+    somevalue2 : INT;
+    testA: ARRAY 5 OF INT;
 START
     somevalue := 45;
+    somevalue3 := 85;
+    somevalue2 := 74;
 END mod.
-
 
 
 
