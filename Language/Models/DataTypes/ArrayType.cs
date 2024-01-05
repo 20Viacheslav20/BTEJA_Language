@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Language.Models
+namespace Language.Models.DataTypes
 {
     public class ArrayType
     {

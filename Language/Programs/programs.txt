@@ -19,7 +19,7 @@ START
   result := CalculateFactorial(5);
 END Factorial.
 
----------------------------------------------------------------------
+--------------------------------------------------------------
 
 MODULE Discriminant;
 
@@ -42,25 +42,12 @@ START
 END Discriminant.
 
 
+--------------------------------------------------------------
 
----------------------------------------------------------------------
 MODULE mod;
+
 VARIABLES 
-    somevalue, somevalue3 : INT;
-    somevalue2 : INT;
-    testA: ARRAY 5 OF INT;
+    somevalue : INT;
 START
-    somevalue := 45;
-    somevalue3 := 85;
-    somevalue2 := 74;
+    somevalue := 5 + 5 < 10 - 8;
 END mod.
-
-
-
-
-
-
-
-
-
-

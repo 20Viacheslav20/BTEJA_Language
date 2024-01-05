@@ -18,6 +18,11 @@ STR_L: '"' .*? '"' ;
 ARRAY: 'ARRAY';
 OF: 'OF';
 
+BOOL: 'BOOL';
+BOOL_L: TRUE | FALSE;
+TRUE: 'TRUE';
+FALSE: 'FALSE';
+
 PROCEDURE: 'PROCEDURE';
 
 IF: 'IF';
@@ -59,6 +64,7 @@ variablesDeclaration: IDENT_L (COMMA IDENT_L)* COLON type ;
 type: INT 
     | REAL 
     | STR 
+    | BOOL
     | ARRAY INT_L OF type;
 
 procedure: procedureDeclaration variablesDeclarationBlock? procedureBody SEMI ;
@@ -109,7 +115,8 @@ factor: '~' factor
 
 literal: REAL_L 
     | INT_L 
-    | STR_L ;
+    | STR_L
+    | BOOL_L;
 
 assignment: IDENT_L EQ expression ;
 

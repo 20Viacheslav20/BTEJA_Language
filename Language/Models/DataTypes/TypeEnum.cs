@@ -1,4 +1,4 @@
-﻿namespace Language.Models
+﻿namespace Language.Models.DataTypes
 {
     public enum TypeEnum
     {
@@ -6,5 +6,7 @@
         REAL,
         STR,
         ARRAY,
+        VOID,
+        BOOL
     }
 }

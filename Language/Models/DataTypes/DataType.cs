@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Language.Models
+﻿
+namespace Language.Models.DataTypes
 {
     public class DataType
     {
@@ -28,6 +22,9 @@ namespace Language.Models
         public static readonly DataType REAL = new DataType(TypeEnum.REAL);
 
         public static readonly DataType STR = new DataType(TypeEnum.STR);
+
+        public static readonly DataType BOOL = new DataType(TypeEnum.BOOL);
+
         public static DataType Array(DataType dataType, int size)
         {
             return new DataType(new ArrayType(dataType, size));
@@ -45,6 +42,7 @@ namespace Language.Models
                 TypeEnum.INT => "INT",
                 TypeEnum.REAL => "REAL",
                 TypeEnum.STR => "STR",
+                TypeEnum.BOOL => "BOOL",
                 TypeEnum.ARRAY => $"ARRAY {_array?.Size} OF {_array?.Type}",
                 _ => throw new ArgumentOutOfRangeException()
             };
