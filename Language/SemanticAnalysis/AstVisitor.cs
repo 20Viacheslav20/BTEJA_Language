@@ -71,62 +71,6 @@ namespace Language.AstAnalysis
             return null;
         }
 
-
-        public override object? VisitType([NotNull] MyLanguageGrammarParser.TypeContext context)
-        {
-            if (context.INT() is not null)
-            {
-                return DataType.INT;
-            }
-
-            if (context.REAL() is not null)
-            {
-                return DataType.REAL;
-            }
-
-            if (context.STR() is not null)
-            {
-                return DataType.STR;
-            }
-
-            if (context.BOOL() is not null)
-            {
-                return DataType.BOOL;
-            }
-
-            if (context.ARRAY() is not null)
-            {
-                int arraySize = 0;
-                if (context.INT_L() is null)
-                {
-                    return new CompilationError("Array size is missing or not an integer", context);
-                }
-                else if (!int.TryParse(context.INT_L().GetText(), out arraySize))
-                {
-                    return new CompilationError("Array size is not a valid integer", context);
-                }
-
-                var elementType = VisitType(context.type());
-
-                if (elementType is CompilationError)
-                {
-                    CompilationError elementError = (CompilationError)elementType;
-                    return new CompilationError($"Error in array element type: {elementError.Message}", elementError.Context);
-                }
-                else if (elementType == null)
-                {
-                    return new CompilationError("Array element type is not defined", context);
-                }
-                else
-                {
-                    return DataType.Array((DataType)elementType, arraySize);
-                }
-            }
-
-            return new CompilationError("Unable to determine the data type", context);
-        }
-
-
         public override object? VisitAssignment([NotNull] MyLanguageGrammarParser.AssignmentContext context)
         {
             var variableName = context.IDENT_L().GetText();
@@ -183,46 +127,51 @@ namespace Language.AstAnalysis
                 {
                     errors.Add(new CompilationError($"Can't compare {left} with {right} using {relation}", context));
                     return null;
-                }
-
-                return left;
+                }  
             }
+            return DataType.BOOL;
         }
 
         public override object? VisitSimpleExpression([NotNull] MyLanguageGrammarParser.SimpleExpressionContext context)
         {
-            var term = VisitTerm(context.term()[0]);
-
-            var plusMinus = context.plusMinus()?.GetText();
-            
-            if (context.term().Length == 1)
+            if (context.term().Length == 0)
             {
-                if (plusMinus is not null && (term == DataType.BOOL || term == DataType.STR))
+                errors.Add(new CompilationError($"The value is null", context));
+                return null;
+            } else
+            {
+                var term = VisitTerm(context.term()[0]);
+                var plusMinus = context.plusMinus()?.GetText();
+
+                if (context.term().Length == 1)
                 {
-                    errors.Add(new CompilationError($"Can't perform {plusMinus} to {term}", context));
+                    if (plusMinus is not null && (term == DataType.BOOL || term == DataType.STR))
+                    {
+                        errors.Add(new CompilationError($"Can't perform {plusMinus} to {term}", context));
+                    }
+                    return term;
                 }
-                return term;
-            }
 
-            var addOperator = context.addOperator(0).GetText();
-            if ((addOperator != "OR" && (term == DataType.BOOL || term == DataType.STR)) ||
-                (addOperator == "OR" && term != DataType.BOOL))
-            {
-                errors.Add(new CompilationError($"Can't perform {addOperator} on {term}", context));
-                return term;
-            }
-
-            for (var i = 1; i < context.term().Length; i++)
-            {
-                var rightType = VisitTerm(context.term()[i]);
-
-                if (term != rightType)
+                var addOperator = context.addOperator(0).GetText();
+                if ((addOperator != "OR" && (term == DataType.BOOL || term == DataType.STR)) ||
+                    (addOperator == "OR" && term != DataType.BOOL))
                 {
-                    errors.Add(new CompilationError($"Can't perform this operation on {rightType}", context));
+                    errors.Add(new CompilationError($"Can't perform {addOperator} on {term}", context));
+                    return term;
                 }
-            }
 
-            return term;
+                for (var i = 1; i < context.term().Length; i++)
+                {
+                    var rightType = VisitTerm(context.term()[i]);
+
+                    if (term != rightType)
+                    {
+                        errors.Add(new CompilationError($"Can't perform this operation on {rightType}", context));
+                    }
+                }
+
+                return term;
+            }  
         }
 
         public override object? VisitTerm([NotNull] MyLanguageGrammarParser.TermContext context)
@@ -309,7 +258,8 @@ namespace Language.AstAnalysis
                 return DataType.BOOL;
             }
 
-            return new CompilationError("Incorrect type", context); ;
+            errors.Add(new CompilationError("Unrecognized literal type", context));
+            return null;
         }
 
         public override object? VisitProcedureCall([NotNull] MyLanguageGrammarParser.ProcedureCallContext context)
@@ -320,14 +270,236 @@ namespace Language.AstAnalysis
 
             if (procedureInfo == null)
             {
-                errors.Add(new CompilationError($"Procedure '{procedureName}' is not declared.", context));
+                errors.Add(new CompilationError($"Procedure '{procedureName}' is not declared", context));
             }
             else
             {
-                var a = 5;
+                if (procedureInfo is not ProcedureSymbolInfo)
+                {
+                    errors.Add(new CompilationError($"Symbol '{procedureName}' is not a subprogram or not declared", context));
+                }
+                var procedure = (ProcedureSymbolInfo) procedureInfo;
+
+                if (context.expression().Length != procedure.Parameters.Count)
+                {
+                    errors.Add(new CompilationError($"Exprected {procedure.Parameters.Count} parametrs but {context.expression().Length} was stated", context));
+                }
+
+                for (int i = 0; i < context.expression().Length; i++)
+                {
+                    var exp = VisitExpression(context.expression()[i]);
+
+                    var prParam = procedure.Parameters.ElementAt(i).DataType;
+
+                    if (prParam != exp)
+                    {
+                        errors.Add(new CompilationError($"Expected {prParam} but was {exp} at position {i + 1}", context));
+                    }
+
+                }
             }
 
             return null;
         }
+
+        public override object? VisitProcedure([NotNull] MyLanguageGrammarParser.ProcedureContext context)
+        {
+            symbolTable.EnterScope();
+            VisitProcedureDeclaration(context.procedureDeclaration());
+            var variablesDeclarationBlock = context.variablesDeclarationBlock();
+            if (variablesDeclarationBlock != null)
+            {
+                VisitVariablesDeclarationBlock(variablesDeclarationBlock);
+            }
+            VisitProcedureBody(context.procedureBody());
+            return null;
+        }
+
+        public override object? VisitProcedureDeclaration([NotNull] MyLanguageGrammarParser.ProcedureDeclarationContext context)
+        {
+            var name = context.IDENT_L().GetText();
+
+            if (symbolTable.GetSymbol(name) != null)
+            {
+                errors.Add(new CompilationError($"Procedure '{name}' is already declared.", context));
+                return null;
+            }
+
+            ProcedureSymbolInfo procedureSymbolInfo = new ProcedureSymbolInfo(name, null, null, context);
+            if (context.type() == null)
+            {
+                procedureSymbolInfo.ReturnType = DataType.VOID;
+                symbolTable.AddSymbol(name, procedureSymbolInfo);
+            } else
+            {
+                var typ = VisitType(context.type());
+                if (typ is CompilationError compilationError)
+                {
+                    errors.Add(compilationError);
+                } else
+                {
+                    if (typ is DataType dataType)
+                    {
+                        procedureSymbolInfo.ReturnType = dataType;
+                        symbolTable.AddSymbol(name, procedureSymbolInfo);
+                    }
+                }
+            }
+
+            var parameters = context.procedureParameters()?.variablesDeclaration();
+            if (parameters != null)
+            {
+                var parameterList = new List<VariableSymbolInfo>();
+                foreach (var parameter in parameters)
+                {
+                    foreach(var param in parameter.IDENT_L())
+                    {
+                        var parameterType = VisitType(parameter.type());
+                        if (parameterType is CompilationError compilationError1)
+                        {
+                            errors.Add(compilationError1);
+                        } else
+                        {
+                            var parameterInfo = new VariableSymbolInfo(param.GetText(), (DataType) parameterType, parameter);
+                            parameterList.Add(parameterInfo);
+                            symbolTable.AddSymbol(param.GetText(), parameterInfo);
+                        }
+                    }
+                }
+
+                procedureSymbolInfo.Parameters = parameterList;
+            }
+
+            return null;
+        }
+
+        public override object? VisitIfStatement([NotNull] MyLanguageGrammarParser.IfStatementContext context)
+        {
+            var expression = VisitExpression(context.expression());
+
+            if (expression != null && expression is DataType dataType && dataType != DataType.BOOL)
+            {
+                errors.Add(new CompilationError($"If statement condition must be of type BOOL, but found {dataType}.", context));
+                return null;
+            }
+
+            VisitChildren(context);
+            return null;
+        }
+
+        public override object? VisitElseIfStatement([NotNull] MyLanguageGrammarParser.ElseIfStatementContext context)
+        {
+            var expression = VisitExpression(context.expression());
+
+            if (expression != null && expression is DataType dataType && dataType != DataType.BOOL)
+            {
+                errors.Add(new CompilationError($"Else If statement condition must be of type BOOL, but found {dataType}.", context));
+                return null;
+            }
+
+            VisitChildren(context);
+            return null;
+        }
+
+        public override object? VisitReturnStatement([NotNull] MyLanguageGrammarParser.ReturnStatementContext context)
+        {
+            var expression = VisitExpression(context.expression());
+
+            var symbol = symbolTable.GetSymbol((string)expression);
+
+            if (symbol == null)
+            {
+                errors.Add(new CompilationError($"Symbol '{expression}' is not declared", context));
+                return null;
+            }
+
+            // Check if the returned expression type matches the expected return type of the current procedure
+            var currentProcedure = symbolTable.GetCurrentScope();
+
+            var procedureInfo = currentProcedure.Values.First() as ProcedureSymbolInfo;
+
+            if (procedureInfo != null)
+            {
+                var expectedReturnType = procedureInfo.ReturnType;
+
+                if (symbol is VariableSymbolInfo symbolInfo && symbolInfo.DataType != expectedReturnType)
+                {
+                    errors.Add(new CompilationError($"Return statement type '{symbolInfo.DataType}' does not match the expected return type '{expectedReturnType}'.", context));
+                }
+            } else
+            {
+                errors.Add(new CompilationError($"Return can used only in procedures", context));
+            }
+            return null;
+        }
+
+        public override object? VisitWhileStatement([NotNull] MyLanguageGrammarParser.WhileStatementContext context)
+        {
+            var expression = VisitExpression(context.expression());
+
+            if (expression != null && expression is DataType dataType && dataType != DataType.BOOL)
+            {
+                errors.Add(new CompilationError($"While statement condition must be of type BOOL, but found {dataType}.", context));
+                return null;
+            }
+
+            VisitChildren(context);
+            return null;
+        }
+
+        public override object? VisitType([NotNull] MyLanguageGrammarParser.TypeContext context)
+        {
+            if (context.INT() is not null)
+            {
+                return DataType.INT;
+            }
+
+            if (context.REAL() is not null)
+            {
+                return DataType.REAL;
+            }
+
+            if (context.STR() is not null)
+            {
+                return DataType.STR;
+            }
+
+            if (context.BOOL() is not null)
+            {
+                return DataType.BOOL;
+            }
+
+            if (context.ARRAY() is not null)
+            {
+                int arraySize = 0;
+                if (context.INT_L() is null)
+                {
+                    return new CompilationError("Array size is missing or not an integer", context);
+                }
+                else if (!int.TryParse(context.INT_L().GetText(), out arraySize))
+                {
+                    return new CompilationError("Array size is not a valid integer", context);
+                }
+
+                var elementType = VisitType(context.type());
+
+                if (elementType is CompilationError)
+                {
+                    CompilationError elementError = (CompilationError)elementType;
+                    return new CompilationError($"Error in array element type: {elementError.Message}", elementError.Context);
+                }
+                else if (elementType == null)
+                {
+                    return new CompilationError("Array element type is not defined", context);
+                }
+                else
+                {
+                    return DataType.Array((DataType)elementType, arraySize);
+                }
+            }
+
+            return new CompilationError("Unable to determine the data type", context);
+        }
+
     }
 }

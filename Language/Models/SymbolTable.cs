@@ -42,5 +42,15 @@ namespace Language.Models
 
             return null;
         }
+
+        public Dictionary<string, ISymbolInfo> GetCurrentScope()
+        {
+            if (scopes.Count > 0)
+            {
+                return scopes.Peek();
+            }
+
+            return null;
+        }
     }
 }

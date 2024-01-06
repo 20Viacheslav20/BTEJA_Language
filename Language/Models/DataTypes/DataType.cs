@@ -25,6 +25,8 @@ namespace Language.Models.DataTypes
 
         public static readonly DataType BOOL = new DataType(TypeEnum.BOOL);
 
+        public static readonly DataType VOID = new DataType(TypeEnum.VOID);
+
         public static DataType Array(DataType dataType, int size)
         {
             return new DataType(new ArrayType(dataType, size));
@@ -46,6 +48,11 @@ namespace Language.Models.DataTypes
                 TypeEnum.ARRAY => $"ARRAY {_array?.Size} OF {_array?.Type}",
                 _ => throw new ArgumentOutOfRangeException()
             };
+        }
+
+        public static bool IsAssignable(DataType expectedType, DataType actualType)
+        {
+            return expectedType == actualType;
         }
     }
 }
