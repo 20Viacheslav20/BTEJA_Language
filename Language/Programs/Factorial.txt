@@ -1,0 +1,20 @@
+﻿MODULE Factorial;
+
+VARIABLES
+  result: INT;
+
+PROCEDURE CalculateFactorial(n: INT): INT
+VARIABLES
+  temp: INT;
+START
+  IF n = 0 THEN
+    RETURN 1;
+  ELSE
+    temp := n * CalculateFactorial(n - 1);
+    RETURN temp;
+  END;
+END;
+
+START
+  result := CalculateFactorial(5);
+END Factorial.

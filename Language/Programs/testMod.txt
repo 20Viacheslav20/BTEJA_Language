@@ -1,0 +1,13 @@
+﻿MODULE testMod;
+
+VARIABLES 
+    a : INT;
+
+PROCEDURE test(value: INT)
+START
+    value := 45 + 89;
+END;
+
+START
+    a := test(5);
+END testMod.

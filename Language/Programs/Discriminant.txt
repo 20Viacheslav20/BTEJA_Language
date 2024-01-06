@@ -1,0 +1,19 @@
+﻿MODULE Discriminant;
+
+VARIABLES
+  a: INT;
+  b: INT;
+  c: INT;
+  discriminant: INT;
+
+PROCEDURE CalculateDiscriminant(a: INT, b: INT, c: INT) : INT
+VARIABLES
+  result : INT;
+START
+  result := b * b - 4 * a * c;
+  RETURN result;
+END;
+
+START
+  discriminant := CalculateDiscriminant(a, b, c);
+END Discriminant.

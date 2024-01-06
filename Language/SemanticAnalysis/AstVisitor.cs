@@ -7,7 +7,7 @@ namespace Language.AstAnalysis
 {
     public class AstVisitor : MyLanguageGrammarBaseVisitor<object?>
     {
-        private SymbolTable symbolTable;
+        public SymbolTable symbolTable;
         public IEnumerable<CompilationError> Errors => errors;
 
         private List<CompilationError> errors;
@@ -32,7 +32,7 @@ namespace Language.AstAnalysis
                 base.VisitModuleStatements(moduleStatements);
             }
 
-            symbolTable.ExitScope();
+            //symbolTable.ExitScope();
 
             return null;
         }
@@ -405,31 +405,44 @@ namespace Language.AstAnalysis
         {
             var expression = VisitExpression(context.expression());
 
-            var symbol = symbolTable.GetSymbol((string)expression);
-
-            if (symbol == null)
-            {
-                errors.Add(new CompilationError($"Symbol '{expression}' is not declared", context));
-                return null;
-            }
-
-            // Check if the returned expression type matches the expected return type of the current procedure
             var currentProcedure = symbolTable.GetCurrentScope();
 
             var procedureInfo = currentProcedure.Values.First() as ProcedureSymbolInfo;
 
-            if (procedureInfo != null)
+            var expectedReturnType = procedureInfo.ReturnType;
+            if (expression is not DataType dataType)
             {
-                var expectedReturnType = procedureInfo.ReturnType;
+                var symbol = symbolTable.GetSymbol((string)expression);
 
-                if (symbol is VariableSymbolInfo symbolInfo && symbolInfo.DataType != expectedReturnType)
+                if (symbol == null)
                 {
-                    errors.Add(new CompilationError($"Return statement type '{symbolInfo.DataType}' does not match the expected return type '{expectedReturnType}'.", context));
+                    errors.Add(new CompilationError($"Symbol '{expression}' is not declared", context));
+                    return null;
                 }
+
+                if (procedureInfo != null)
+                {
+
+                    // Check if the returned expression type matches the expected return type of the current procedure
+                    if (symbol is VariableSymbolInfo symbolInfo && symbolInfo.DataType != expectedReturnType)
+                    {
+                        errors.Add(new CompilationError($"Return statement type '{symbolInfo.DataType}' does not match the expected return type '{expectedReturnType}'.", context));
+                    }
+                }
+                else
+                {
+                    errors.Add(new CompilationError($"Return can used only in procedures", context));
+                }
+
             } else
             {
-                errors.Add(new CompilationError($"Return can used only in procedures", context));
+                if (expression != null && expression != expectedReturnType) 
+                {
+                    errors.Add(new CompilationError($"Return statement type '{expression}' does not match the expected return type '{expectedReturnType}'.", context));
+                }
             }
+
+
             return null;
         }
 

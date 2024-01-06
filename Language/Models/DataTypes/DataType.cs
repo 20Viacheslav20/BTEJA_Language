@@ -32,27 +32,16 @@ namespace Language.Models.DataTypes
             return new DataType(new ArrayType(dataType, size));
         }
 
-        public bool IsArray()
+        public bool IsArray(out ArrayType? array)
         {
-            return _type == TypeEnum.ARRAY;
-        }
-
-        public override string ToString()
-        {
-            return _type switch
+            if (_array is null)
             {
-                TypeEnum.INT => "INT",
-                TypeEnum.REAL => "REAL",
-                TypeEnum.STR => "STR",
-                TypeEnum.BOOL => "BOOL",
-                TypeEnum.ARRAY => $"ARRAY {_array?.Size} OF {_array?.Type}",
-                _ => throw new ArgumentOutOfRangeException()
-            };
-        }
+                array = null;
+                return false;
+            }
 
-        public static bool IsAssignable(DataType expectedType, DataType actualType)
-        {
-            return expectedType == actualType;
+            array = _array;
+            return true;
         }
     }
 }
