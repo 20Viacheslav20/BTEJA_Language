@@ -2,6 +2,7 @@
 using Language.Models;
 using Language.Models.DataTypes;
 using Language.Models.SymbolsInfo;
+using System.Numerics;
 
 namespace Language.AstAnalysis
 {
@@ -31,8 +32,6 @@ namespace Language.AstAnalysis
             {
                 base.VisitModuleStatements(moduleStatements);
             }
-
-            //symbolTable.ExitScope();
 
             return null;
         }
@@ -164,9 +163,11 @@ namespace Language.AstAnalysis
                 {
                     var rightType = VisitTerm(context.term()[i]);
 
-                    if (term != rightType)
+                    if (term is string && ((VariableSymbolInfo) symbolTable.GetSymbol((string)term)).DataType.ToString().Equals(rightType.ToString())) {
+
+                    } else if (term != rightType)
                     {
-                        errors.Add(new CompilationError($"Can't perform this operation on {rightType}", context));
+                        errors.Add(new CompilationError($"Can't perform this operation on {rightType}", context)); 
                     }
                 }
 
@@ -187,7 +188,7 @@ namespace Language.AstAnalysis
 
             if (factor == DataType.BOOL || factor == DataType.STR)
             {
-                errors.Add(new CompilationError($"Cannot perform operation ({mulOperator}) on {factor}", context));
+                errors.Add(new CompilationError($"Can't perform operation ({mulOperator}) on {factor}", context)); 
                 return factor;
             }
 
@@ -196,9 +197,27 @@ namespace Language.AstAnalysis
             {
                 var newFactor = VisitFactor(context.factor()[i]);
 
-                if (factor != newFactor)
+
+                if (factor is DataType dataType && newFactor is string && dataType != ((VariableSymbolInfo) symbolTable.GetSymbol( (string) newFactor)).DataType)
                 {
-                    errors.Add(new CompilationError($"Cannot perform this operation on {factor} and {newFactor}", context));
+
+                } 
+                else if (symbolTable.GetSymbol((string)newFactor) is ProcedureSymbolInfo procedureSymbolInfo && symbolTable.GetSymbol((string) factor) is VariableSymbolInfo variableSymbolInfo 
+                    && procedureSymbolInfo.ReturnType == variableSymbolInfo.DataType)
+                {
+
+                } 
+                else if (((VariableSymbolInfo)symbolTable.GetSymbol((string)newFactor)).DataType.ToString().Equals(factor.ToString()))
+                {
+
+                }
+                else if (!factor.Equals(newFactor))
+                {
+                    errors.Add(new CompilationError($"Can't perform this operation on {factor} and {newFactor}", context)); 
+                    return factor;
+                } else
+                {
+                    errors.Add(new CompilationError($"Can't perform this operation on {factor} and {newFactor}", context));
                     return factor;
                 }
             }
@@ -293,13 +312,13 @@ namespace Language.AstAnalysis
 
                     if (prParam != exp)
                     {
-                        errors.Add(new CompilationError($"Expected {prParam} but was {exp} at position {i + 1}", context));
+                        errors.Add(new CompilationError($"Expected {prParam} but was {exp} at position {i + 1}", context)); 
                     }
 
                 }
             }
 
-            return null;
+            return procedureName;
         }
 
         public override object? VisitProcedure([NotNull] MyLanguageGrammarParser.ProcedureContext context)

@@ -32,6 +32,8 @@ namespace Language.Models
 
         public ISymbolInfo GetSymbol(string name)
         {
+            if (name == null)
+                return null;
             foreach (var scope in scopes)
             {
                 if (scope.TryGetValue(name, out var symbol))

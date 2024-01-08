@@ -6,11 +6,11 @@ VARIABLES
   c: INT;
   discriminant: INT;
 
-PROCEDURE CalculateDiscriminant(a: INT, b: INT, c: INT) : INT
+PROCEDURE CalculateDiscriminant(a1: INT, b1: INT, c1: INT) : INT
 VARIABLES
   result : INT;
 START
-  result := b * b - 4 * a * c;
+  result := b1 * b1 - 4 * a1 * c1;
   RETURN result;
 END;
 
