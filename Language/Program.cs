@@ -28,8 +28,8 @@ class Program
 
     private static void CompileProgram(string programPath)
     {
-        //try
-        //{
+        try
+        {
             string fullPath = Path.Combine("../../../", programPath);
             var inputStream = new AntlrFileStream(fullPath);
 
@@ -59,11 +59,11 @@ class Program
 
                 CompileIR(fullPath, irGenerator);
             }
-        //}
-        //catch (Exception ex)
-        //{
-        //    Console.WriteLine($"An error occurred: {ex.Message}");
-        //}
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred: {ex.Message}");
+        }
     }
 
     private static void CompileIR(string sourcePath, IrGenerator irGenerator)
